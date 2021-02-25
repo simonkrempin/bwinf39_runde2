@@ -47,14 +47,17 @@ def calc_fitness(chromosome, c_individual) -> int:
 
 
 def fitness_function(pop, c_individual):
-    for house in house_positions:
-        c_individual.nearest_ip.append(nearest_ip_for_house(house, c_individual.chromosome))
+    c_individual.nearest_ip = []
+    for h in house_positions:
+        c_individual.nearest_ip.append(nearest_ip_for_house(h, c_individual.chromosome))
 
     # since the comparison changes with each generation the highest is the new comparison
+    hf = 0
     hf_individual = c_individual  # starts at 0 because no -1 is better then comparison value
     for individual in pop:
         individual.fitness_value = calc_fitness(individual.chromosome, c_individual)
-        if individual.fitness_value > hf_individual.fitness_value:
+        if individual.fitness_value > hf:
+            hf = individual.fitness_value
             hf_individual = individual
     return hf_individual
 
@@ -103,7 +106,7 @@ def crossover(population):
 
 
 # -------------- individual mutation ---------------
-def mutate_individual(individual: idl.Individual) -> None:
+def mutate_individual(individual: idl.Individual):
     for gen_index in range(len(individual.chromosome)):
         if random.randint(0, 2) == 1:
             while True:
@@ -112,17 +115,19 @@ def mutate_individual(individual: idl.Individual) -> None:
                 if value not in individual.chromosome:
                     individual.chromosome[gen_index] = value
                     break
+    return individual.chromosome
 
 
-def mutation(population):
-    pos_index = 1
-    for individual in population:
-        if random.randint(0, pos_index) == 0:
-            pos_index += 1
+def mutation(pop):
+    possibility = 1
+    for individual in pop:
+        if random.randint(0, possibility) == 0:
+            possibility += 1
             continue
-        pos_index = 1
-        mutate_individual(individual)
-    return new_population
+
+        possibility = 1
+        individual.chromosome = mutate_individual(individual)
+    return pop
 
 
 # -------------------- GA ----------------------
@@ -131,23 +136,24 @@ repeated_solutions = []
 loop_counter = 0
 
 while True:
-    new_comparison_value = fitness_function(population, comparison_individual)
+    new_comparison_individual = fitness_function(population, comparison_individual)
     # if new_comparison_value already existed there will most likely be no solution
-    if comparison_individual is not new_comparison_value:
-        if new_comparison_value in repeated_solutions:
+    if comparison_individual is not new_comparison_individual:
+        if new_comparison_individual in repeated_solutions:
+            print('most likely won\'t there there be any satisfying solution')
             break
         repeated_solutions.append(comparison_individual)
-        comparison_individual = new_comparison_value
+        comparison_individual = new_comparison_individual
         counter = 0
-
-    new_population = crossover(determine_mating_pool(population))
-    mutation(new_population)
-    population = new_population
+    offspring = crossover(determine_mating_pool(population))
+    mutation(offspring)
+    population = offspring
 
     # loop anchor
     print(comparison_individual.chromosome)
     loop_counter += 1
     if loop_counter > approximate_process_times:
+        print('unlikely better version')
         break
 
 print('final solution' + str(comparison_individual.chromosome))
