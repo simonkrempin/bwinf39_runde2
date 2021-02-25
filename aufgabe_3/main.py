@@ -1,3 +1,4 @@
+# --------- GA to solve an optimization problem ----------
 import random
 import individual as idl
 import math
@@ -8,6 +9,8 @@ circumference = int(file.readline().split()[0])
 house_positions = list(map(int, file.readline().split()))
 approximate_process_times = circumference * len(house_positions)
 
+
+# --------------- create starting population ---------------
 def gra(arr=[]):  # generate random array
     if circumference < 2 > len(arr):
         return arr
@@ -26,24 +29,7 @@ for i in range(40):
     population.append(idl.Individual(gra(gra(gra()))))
 
 
-def calc_fitness(chromosome, c_individual) -> int:
-    fitness_value = 0
-    for index in range(len(house_positions)):
-        fitness_value += 1 if population[0].nearest_ip[index] > nearest_ip_for_house(house_positions[index], chromosome) else -1
-    return fitness_value
-
-
-def fitness_function(pop, c_individual):
-    # since the comparison changes with each generation the highest is the new comparison
-    highest_fitness = 0  # starts at 0 because no -1 is better then comparison value
-    for individual in pop:
-        individual.fitness_value = calc_fitness(individual.chromosome, c_individual)
-        if individual.fitness_value > highest_fitness:
-            highest_fitness = individual.fitness_value
-            c_individual = individual
-    return c_individual
-
-
+# ------------- fitness function --------------------
 def nearest_ip_for_house(house_position, chromosome) -> int:
     closest: int = circumference
     for gen in chromosome:
@@ -53,6 +39,27 @@ def nearest_ip_for_house(house_position, chromosome) -> int:
     return closest
 
 
+def calc_fitness(chromosome, c_individual) -> int:
+    fitness_value = 0
+    for index in range(len(house_positions)):
+        fitness_value += 1 if c_individual.nearest_ip[index] > nearest_ip_for_house(house_positions[index], chromosome) else -1
+    return fitness_value
+
+
+def fitness_function(pop, c_individual):
+    for house in house_positions:
+        c_individual.nearest_ip.append(nearest_ip_for_house(house, c_individual.chromosome))
+
+    # since the comparison changes with each generation the highest is the new comparison
+    hf_individual = c_individual  # starts at 0 because no -1 is better then comparison value
+    for individual in pop:
+        individual.fitness_value = calc_fitness(individual.chromosome, c_individual)
+        if individual.fitness_value > hf_individual.fitness_value:
+            hf_individual = individual
+    return hf_individual
+
+
+# ------------- determine mating pool ------------------
 def determine_mating_pool(population) -> []:
     lowest_fitness = min(list(x.fitness_value for x in population))
     for individual in population[1:]:  # ignore the first individual since its the comparison individual
@@ -67,6 +74,7 @@ def determine_mating_pool(population) -> []:
     return mating_pool
 
 
+# ------------- crossover function --------------------
 def crossover_function(individual1, individual2):
     chromosome1 = individual1.chromosome
     chromosome2 = individual2.chromosome
@@ -78,7 +86,7 @@ def crossover_function(individual1, individual2):
 
 def crossover(population):
     crossover_population = []
-    for x in range(len(population) // 2):
+    for x in range(40):
         # get two random genes
         individual1 = population[random.randint(0, len(population) - 1)]
         individual2: idl.Individual
@@ -94,14 +102,15 @@ def crossover(population):
     return crossover_population
 
 
+# -------------- individual mutation ---------------
 def mutate_individual(individual: idl.Individual) -> None:
-    for gen_index in individual.chromosome:
+    for gen_index in range(len(individual.chromosome)):
         if random.randint(0, 2) == 1:
             while True:
                 value = random.randint(0, circumference)
 
                 if value not in individual.chromosome:
-                    population[gen_index].chromosome = value
+                    individual.chromosome[gen_index] = value
                     break
 
 
@@ -116,31 +125,31 @@ def mutation(population):
     return new_population
 
 
-# evolution loop
+# -------------------- GA ----------------------
 comparison_individual = idl.Individual([int(circumference/3), int(circumference/3 * 2), int(circumference)])
 repeated_solutions = []
 loop_counter = 0
 
 while True:
     new_comparison_value = fitness_function(population, comparison_individual)
+    # if new_comparison_value already existed there will most likely be no solution
     if comparison_individual is not new_comparison_value:
         if new_comparison_value in repeated_solutions:
             break
         repeated_solutions.append(comparison_individual)
         comparison_individual = new_comparison_value
         counter = 0
+
     new_population = crossover(determine_mating_pool(population))
     mutation(new_population)
-    # select survivor
+    population = new_population
 
     # loop anchor
+    print(comparison_individual.chromosome)
     loop_counter += 1
-
-    highest_value = 0
-    for individual_index in range(len(population)):
-        if comparison_individual.fitness_value < population[individual_index].fitness_value:
-            comparison_individual = population[individual_index]
-
     if loop_counter > approximate_process_times:
         break
-print(comparison_individual)
+
+print('final solution' + str(comparison_individual.chromosome))
+for house in house_positions:
+    print('house' + str(nearest_ip_for_house(house, comparison_individual.chromosome)))
