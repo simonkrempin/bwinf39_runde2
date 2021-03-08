@@ -5,157 +5,192 @@ import math
 
 # reading the file
 file = open("example1.txt")  # change the input file for the algorithm
-circumference = int(file.readline().split()[0])
+circumference = int(file.readline().split()[0]) - 1  # -1 for the last number of the circle
 house_positions = list(map(int, file.readline().split()))
-approximate_process_times = circumference * len(house_positions)
+pop_size = 40
+alt = circumference * 3
 
 
-# --------------- create starting population ---------------
-def gra(arr=[]):  # generate random array
-    if circumference < 2 > len(arr):
+# define the length of the chromosome by the users input
+chr_length = 3
+while True:
+    try:
+        chr_length = int(input())
+        if circumference >= chr_length > 0:
+            break
+    except ValueError:
+        pass
+    print('please enter an 0 < x < circumference')
+
+
+# ------------- GA Methods ----------------
+def create_random_array(length=3, arr=[]) -> []:
+    if circumference > length <= 0:
         return arr
 
+    arr = create_random_array(length - 1, arr)
+
     while True:
-        value = [random.randint(0, circumference)]
-        if value[0] not in arr:
-            return arr + value
+        value = random.randint(0, circumference)
+        if value not in arr:
+            arr.append(value)
+            return arr
 
 
-# genetic algorithm
-# create a initial population with random values
-# each population contains 40 chromosomes with 3 genes
-population = []
-for i in range(40):
-    population.append(idl.Individual(gra(gra(gra()))))
+# ---------- define fitness for pop -------------
+def calc_nearest_ip(chromosome, house_posses) -> []:
+    arr = []
+    for house_pos in house_posses:
+        nearest = circumference
+        for gen in chromosome:
+            value1 = math.fabs(house_pos - gen)
+            value2 = math.fabs((circumference + 1) - value1)
+            nearest = value1 if value2 > value1 < nearest else value2 if value2 < nearest else nearest
+        arr.append(nearest)
+    return arr
 
 
-# ------------- fitness function --------------------
-def nearest_ip_for_house(house_position, chromosome) -> int:
-    closest: int = circumference
-    for gen in chromosome:
-        value1 = math.fabs(gen - house_position)
-        value2 = math.fabs(gen - circumference - house_position)
-        closest = value1 if value1 < value2 and value1 < closest else value2 if value2 < value1 and value2 < closest else closest
-    return closest
+def compare_two_chromosomes(c1, c2) -> int:
+    value = 0
+    for i in range(len(c1)):
+        value += 1 if c1[i] < c2[i] else -1
+    return value
 
 
-def calc_fitness(chromosome, c_individual) -> int:
-    fitness_value = 0
-    for index in range(len(house_positions)):
-        fitness_value += 1 if c_individual.nearest_ip[index] > nearest_ip_for_house(house_positions[index], chromosome) else -1
-    return fitness_value
-
-
-def fitness_function(pop, c_individual):
-    c_individual.nearest_ip = []
-    for h in house_positions:
-        c_individual.nearest_ip.append(nearest_ip_for_house(h, c_individual.chromosome))
-
-    # since the comparison changes with each generation the highest is the new comparison
-    hf = 0
-    hf_individual = c_individual  # starts at 0 because no -1 is better then comparison value
+def fitness_function(pop, comp_idl: idl.Individual) -> None:
+    comp_idl.nearest_ip = calc_nearest_ip(comp_idl.chromosome, house_positions)
     for individual in pop:
-        individual.fitness_value = calc_fitness(individual.chromosome, c_individual)
-        if individual.fitness_value > hf:
-            hf = individual.fitness_value
-            hf_individual = individual
-    return hf_individual
+        if individual is comp_idl:
+            individual.fitness_value /= 2
+        individual.fitness_value = compare_two_chromosomes(calc_nearest_ip(individual.chromosome, house_positions), comp_idl.nearest_ip)
 
 
-# ------------- determine mating pool ------------------
-def determine_mating_pool(population) -> []:
-    lowest_fitness = min(list(x.fitness_value for x in population))
-    for individual in population[1:]:  # ignore the first individual since its the comparison individual
-        individual.fitness_value += math.fabs(lowest_fitness)
+# ------------ create mating pool --------------
+def create_mating_pool(pop) -> []:
+    threshold = 0
+    for individual in pop:
+        threshold += individual.fitness_value
+    threshold /= len(pop)
 
-    # determine a threshold
-    threshold = sum([individual.fitness_value for individual in population]) / len(population)
-    mating_pool = []
-    for individual in population:
-        if individual.fitness_value > threshold:
-            mating_pool.append(individual)
-    return mating_pool
-
-
-# ------------- crossover function --------------------
-def crossover_function(individual1, individual2):
-    chromosome1 = individual1.chromosome
-    chromosome2 = individual2.chromosome
-    for gen_index in range(len(chromosome1)):
-        if random.randint(0, 1) == 0:
-            chromosome1[gen_index], chromosome2[gen_index] = chromosome2[gen_index], chromosome1[gen_index]
-    return idl.Individual(chromosome1), idl.Individual(chromosome2)
+    return_pop = []
+    for individual in pop:
+        if individual.fitness_value >= threshold:
+            return_pop.append(individual)
+    return return_pop
 
 
-def crossover(population):
-    crossover_population = []
-    for x in range(40):
-        # get two random genes
-        individual1 = population[random.randint(0, len(population) - 1)]
-        individual2: idl.Individual
+# ------------ crossover function ---------------
+def crossover_function(pop) -> []:
+    lowest_value = min([x.fitness_value for x in pop])
 
-        while True:
-            individual2 = population[random.randint(0, len(population) - 1)]
-            if individual2 is not individual1:
+    overall_score = 0
+    for individual in pop:
+        individual.fitness_value += math.fabs(lowest_value)
+        overall_score += individual.fitness_value
+
+    return_pop = []
+    for _ in range(len(pop) // 2):
+        v1 = random.randint(0, overall_score)
+        v2 = random.randint(0, overall_score)
+        c1 = None
+        c2 = None
+
+        for individual in pop:
+            if v1 > 0:
+                v1 -= individual.fitness_value
+                if v1 <= 0:
+                    c1 = individual
+            if v2 > 0:
+                v2 -= individual.fitness_value
+                if v2 <= 0:
+                    c2 = individual
+
+            if v1 <= 0 and v2 <= 0:
                 break
 
-        individual1, individual2 = crossover_function(individual1, individual2)
-        crossover_population.append(individual1)
-        crossover_population.append(individual2)
-    return crossover_population
+        c1, c2 = cross_chromosomes(c1, c2)
+        return_pop.append(idl.Individual(c1.chromosome))
+        return_pop.append(idl.Individual(c2.chromosome))
+    return return_pop
 
 
-# -------------- individual mutation ---------------
-def mutate_individual(individual: idl.Individual):
-    for gen_index in range(len(individual.chromosome)):
-        if random.randint(0, 2) == 1:
-            while True:
-                value = random.randint(0, circumference)
+def cross_chromosomes(c1, c2):
+    if c1 and c2 is None:
+        return idl.Individual(create_random_array(chr_length, [])), idl.Individual(create_random_array(chr_length, []))
+    if c1 is None:
+        return idl.Individual(create_random_array(chr_length, [])), c2
+    elif c2 is None:
+        return c1, idl.Individual(create_random_array(chr_length, []))
 
-                if value not in individual.chromosome:
-                    individual.chromosome[gen_index] = value
-                    break
-    return individual.chromosome
+    for index in range(len(c1.chromosome)):
+        if random.randint(0, 1) == 0:
+            c2.chromosome[index], c1.chromosome[index] = c1.chromosome[index], c2.chromosome[index]
+    return c1, c2
 
 
+# ----------- mutate chromosomes -----------
 def mutation(pop):
-    possibility = 1
-    for individual in pop:
-        if random.randint(0, possibility) == 0:
-            possibility += 1
+    probability = 1
+    for individual in pop[:-1]:
+        if random.randint(0, 1) == 0:
+            probability += 1
             continue
-
-        possibility = 1
-        individual.chromosome = mutate_individual(individual)
+        individual = mutate_chromosome(individual)
+        probability = 1  # reset probability after mutation
     return pop
 
 
-# -------------------- GA ----------------------
-comparison_individual = idl.Individual([int(circumference/3), int(circumference/3 * 2), int(circumference)])
-repeated_solutions = []
-loop_counter = 0
+def mutate_chromosome(individual):
+    for gen_index in range(len(individual.chromosome)):
+        if random.randint(0, 1) == 0:
+            while True:
+                rnd_v = random.randint(0, circumference)
+                if rnd_v not in individual.chromosome:
+                    individual.chromosome[gen_index] = rnd_v
+                    break
+    return individual
 
-while True:
-    new_comparison_individual = fitness_function(population, comparison_individual)
-    # if new_comparison_value already existed there will most likely be no solution
-    if comparison_individual is not new_comparison_individual:
-        if new_comparison_individual in repeated_solutions:
-            print('most likely won\'t there there be any satisfying solution')
-            break
-        repeated_solutions.append(comparison_individual)
-        comparison_individual = new_comparison_individual
-        counter = 0
-    offspring = crossover(determine_mating_pool(population))
-    mutation(offspring)
-    population = offspring
 
-    # loop anchor
-    print(comparison_individual.chromosome)
-    loop_counter += 1
-    if loop_counter > approximate_process_times:
-        print('unlikely better version')
+# ----------- Genetic Algorithm ------------
+population = []
+for _ in range(pop_size):
+    population.append(idl.Individual(create_random_array(chr_length, [])))  # create a initial population with random chromosomes
+
+comparison_idl = idl.Individual([6, 2, 14])
+solutions = []
+lt = 0
+looping = True
+while looping:
+    fitness_function(population, comparison_idl)
+    mating_pool = create_mating_pool(population)
+    offspring = crossover_function(mating_pool)
+
+    # append the best chromosome to the next population to not lose progress
+    chr_highest_fitness = None
+    highest_fitness = 0
+    for x in population:
+        if x.fitness_value > highest_fitness:
+            highest_fitness = x.fitness_value
+            chr_highest_fitness = x
+    if chr_highest_fitness is not None:
+        offspring.append(chr_highest_fitness)
+
+    m_offspring = mutation(offspring)
+
+    if chr_highest_fitness is not None:
+        comparison_idl = chr_highest_fitness
+
+    if len(solutions) > 0 and solutions[-1] is comparison_idl:
+        lt = 0  # if new solution found more processing times
+    else:
+        lt += 1
+        for solution in solutions:
+            if comparison_idl.chromosome[0] in solution.chromosome and comparison_idl.chromosome[1] in solution.chromosome and comparison_idl.chromosome[2] in solution.chromosome:
+                looping = False
+                break
+    solutions.append(comparison_idl)
+
+    if lt >= alt:
+        looping = False
         break
-
-print('final solution' + str(comparison_individual.chromosome))
-for house in house_positions:
-    print('house' + str(nearest_ip_for_house(house, comparison_individual.chromosome)))
+print(comparison_idl.chromosome)
