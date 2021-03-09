@@ -129,6 +129,7 @@ def cross_chromosomes(c1, c2):
         if random.randint(0, 1) == 0:
             c2.chromosome[index], c1.chromosome[index] = c1.chromosome[index], c2.chromosome[index]
 
+    # chromosome might contain duplicate through crossover and then the chromosome is no valid chromosome -> remove invalid chromosomes
     if len(c1.chromosome) != len(set(c1.chromosome)):
         c1 = idl.Individual(create_random_array(chr_length, []))
     if len(c2.chromosome) != len(set(c2.chromosome)):
