@@ -4,7 +4,7 @@ import individual as idl
 import math
 
 # reading the file
-file = open("example1.txt")  # change the input file for the algorithm
+file = open("example7.txt")  # change the input file for the algorithm
 circumference = int(file.readline().split()[0]) - 1  # -1 for the last number of the circle
 house_positions = list(map(int, file.readline().split()))
 pop_size = 40
@@ -117,6 +117,7 @@ def crossover_function(pop) -> []:
 
 
 def cross_chromosomes(c1, c2):
+    # return if c1 or c2 are None with a random new individual
     if c1 is None and c2 is None:
         return idl.Individual(create_random_array(chr_length, [])), idl.Individual(create_random_array(chr_length, []))
     elif c1 is None:
@@ -127,6 +128,12 @@ def cross_chromosomes(c1, c2):
     for index in range(len(c1.chromosome)):
         if random.randint(0, 1) == 0:
             c2.chromosome[index], c1.chromosome[index] = c1.chromosome[index], c2.chromosome[index]
+
+    if len(c1.chromosome) != len(set(c1.chromosome)):
+        c1 = idl.Individual(create_random_array(chr_length, []))
+    if len(c2.chromosome) != len(set(c2.chromosome)):
+        c2 = idl.Individual(create_random_array(chr_length, []))
+
     return c1, c2
 
 
@@ -158,7 +165,7 @@ population = []
 for _ in range(pop_size):
     population.append(idl.Individual(create_random_array(chr_length, [])))  # create a initial population with random chromosomes
 
-comparison_idl = idl.Individual(create_random_array(chr_length, []))
+comparison_idl = idl.Individual([83, 129, 231])  # [circumference/3, circumference*2/3, circumference]
 solutions = []
 lt = 0
 looping = True
@@ -167,7 +174,7 @@ while looping:
     mating_pool = create_mating_pool(population)
     offspring = crossover_function(mating_pool)
 
-    # append the best chromosome to the next population to not lose progress
+    # find the best individual from the population
     chr_highest_fitness = None
     highest_fitness = 0
     for x in population:
@@ -180,8 +187,9 @@ while looping:
     m_offspring = mutation(offspring)
 
     if len(solutions) > 0 and solutions[-1] is comparison_idl:
-        lt += 1  # if new solution found more processing times
+        lt += 1
     else:
+        # a new solutions was found which means checking old solutions and more processing times
         lt = 0
         for solution in solutions:
             if comparison_idl.chromosome[0] in solution.chromosome and comparison_idl.chromosome[1] in solution.chromosome and comparison_idl.chromosome[2] in solution.chromosome:
@@ -191,12 +199,13 @@ while looping:
     solutions.append(comparison_idl)
 
     population = m_offspring
-    while len(population) < 40:
+    while len(population) < 39:
         population.append(idl.Individual(create_random_array(chr_length, [])))
 
-    if chr_highest_fitness is not None:
+    if chr_highest_fitness is not None:  # to not lose progress append the best solution to the population
         comparison_idl = chr_highest_fitness
 
+    # loop anchor
     if lt >= alt:
         looping = False
         print('the most promising combination for fix positions is this: %s' % comparison_idl.chromosome)
