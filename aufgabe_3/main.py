@@ -68,9 +68,9 @@ def fitness_function(pop, comp_idl: idl.Individual) -> None:
 # ------------ create mating pool --------------
 def create_mating_pool(pop) -> []:
     threshold = 0
-    for individual in pop:
-        threshold += individual.fitness_value
-    threshold /= len(pop)
+    # for individual in pop:
+    #    threshold += individual.fitness_value
+    # threshold /= len(pop)
 
     return_pop = []
     for individual in pop:
@@ -81,7 +81,9 @@ def create_mating_pool(pop) -> []:
 
 # ------------ crossover function ---------------
 def crossover_function(pop) -> []:
-    lowest_value = min([x.fitness_value for x in pop])
+    if len(pop) <= 0:
+        return []
+    lowest_value = min([individual.fitness_value for individual in pop])
 
     overall_score = 0
     for individual in pop:
@@ -115,9 +117,9 @@ def crossover_function(pop) -> []:
 
 
 def cross_chromosomes(c1, c2):
-    if c1 and c2 is None:
+    if c1 is None and c2 is None:
         return idl.Individual(create_random_array(chr_length, [])), idl.Individual(create_random_array(chr_length, []))
-    if c1 is None:
+    elif c1 is None:
         return idl.Individual(create_random_array(chr_length, [])), c2
     elif c2 is None:
         return c1, idl.Individual(create_random_array(chr_length, []))
@@ -135,7 +137,7 @@ def mutation(pop):
         if random.randint(0, 1) == 0:
             probability += 1
             continue
-        individual = mutate_chromosome(individual)
+        individual.chromosome = mutate_chromosome(individual)
         probability = 1  # reset probability after mutation
     return pop
 
@@ -148,7 +150,7 @@ def mutate_chromosome(individual):
                 if rnd_v not in individual.chromosome:
                     individual.chromosome[gen_index] = rnd_v
                     break
-    return individual
+    return individual.chromosome
 
 
 # ----------- Genetic Algorithm ------------
@@ -156,7 +158,7 @@ population = []
 for _ in range(pop_size):
     population.append(idl.Individual(create_random_array(chr_length, [])))  # create a initial population with random chromosomes
 
-comparison_idl = idl.Individual([6, 2, 14])
+comparison_idl = idl.Individual(create_random_array(chr_length, []))
 solutions = []
 lt = 0
 looping = True
@@ -177,20 +179,25 @@ while looping:
 
     m_offspring = mutation(offspring)
 
-    if chr_highest_fitness is not None:
-        comparison_idl = chr_highest_fitness
-
     if len(solutions) > 0 and solutions[-1] is comparison_idl:
-        lt = 0  # if new solution found more processing times
+        lt += 1  # if new solution found more processing times
     else:
-        lt += 1
+        lt = 0
         for solution in solutions:
             if comparison_idl.chromosome[0] in solution.chromosome and comparison_idl.chromosome[1] in solution.chromosome and comparison_idl.chromosome[2] in solution.chromosome:
+                print('it is very likely that there will never be a fix position for the ice parlors, but at least try this combination: %s' % comparison_idl.chromosome)
                 looping = False
                 break
     solutions.append(comparison_idl)
 
+    population = m_offspring
+    while len(population) < 40:
+        population.append(idl.Individual(create_random_array(chr_length, [])))
+
+    if chr_highest_fitness is not None:
+        comparison_idl = chr_highest_fitness
+
     if lt >= alt:
         looping = False
+        print('the most promising combination for fix positions is this: %s' % comparison_idl.chromosome)
         break
-print(comparison_idl.chromosome)
