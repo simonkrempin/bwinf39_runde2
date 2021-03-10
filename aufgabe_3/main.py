@@ -4,7 +4,7 @@ import individual as idl
 import math
 
 # reading the file
-file = open("example7.txt")  # change the input file for the algorithm
+file = open("example1.txt")  # change the input file for the algorithm
 circumference = int(file.readline().split()[0]) - 1  # -1 for the last number of the circle
 house_positions = list(map(int, file.readline().split()))
 pop_size = 40
@@ -145,7 +145,7 @@ def mutation(pop):
         if random.randint(0, 1) == 0:
             probability += 1
             continue
-        individual.chromosome = mutate_chromosome(individual)
+        individual.chromosome = mutate_chromosome(individual).chromosome
         probability = 1  # reset probability after mutation
     return pop
 
@@ -158,7 +158,7 @@ def mutate_chromosome(individual):
                 if rnd_v not in individual.chromosome:
                     individual.chromosome[gen_index] = rnd_v
                     break
-    return individual.chromosome
+    return individual
 
 
 # ----------- Genetic Algorithm ------------
@@ -185,8 +185,6 @@ while looping:
     if chr_highest_fitness is not None:
         offspring.append(chr_highest_fitness)
 
-    m_offspring = mutation(offspring)
-
     if len(solutions) > 0 and solutions[-1] is comparison_idl:
         lt += 1
     else:
@@ -199,9 +197,12 @@ while looping:
                 break
     solutions.append(comparison_idl)
 
-    population = m_offspring
+    population = offspring
     while len(population) < 39:
-        population.append(idl.Individual(create_random_array(chr_length, [])))
+        if len(population) > 0:
+            population.append(mutate_chromosome(idl.Individual(population[random.randint(0, len(population)-1)].chromosome)))
+        else:
+            population.append(idl.Individual(create_random_array(chr_length, [])))
 
     if chr_highest_fitness is not None:  # to not lose progress append the best solution to the population
         comparison_idl = chr_highest_fitness
