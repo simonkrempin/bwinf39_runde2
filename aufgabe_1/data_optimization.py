@@ -62,4 +62,4 @@ class DataOptimization:
             if reservation.x == -1:
                 continue
             used_space += reservation.size * reservation.length
-        print(f"available space : {available_space}; used space : {used_space}; free space {available_space - used_space};")
+        print(f"available space : {available_space}\nused space      : {used_space}\nfree space      : {available_space - used_space}")
