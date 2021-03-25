@@ -1,6 +1,6 @@
 import pygame
 
-# data visualization for the rectangles
+
 class DataVisualization:
     def __init__(self):
         self.reservations = None
