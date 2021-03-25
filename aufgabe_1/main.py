@@ -1,13 +1,23 @@
+import time
 import reservation as rsv
 import data_visualization as dv
+import data_optimization as do
 
 time_range = 8, 18  # starting time and ending time of
 available_space = 1000
-space = [[0 for i in range(available_space)] for j in range(time_range[1] - time_range[0])]
 
-file = open('example4.txt')
-rectangles = []
+file = open('example2.txt')
+reservations = []
 for i in range(int(file.readline())):
-    rectangles.append(rsv.Reservation(list(map(int, file.readline().split()))))
+    reservations.append(rsv.Reservation(list(map(int, file.readline().split()))))
 
-data_vis = dv.DataVisualization(rectangles)
+# data before slightest optimization
+data_vis = dv.DataVisualization()
+data_vis.setup(reservations, 'before optimization', True)
+
+# data after optimization
+start_time = time.time()
+do = do.DataOptimization(reservations, time_range)
+optimized_reservations = do.optimize()
+print("--- %s seconds ---" % round((time.time() - start_time), 3))
+data_vis.setup(reservations, 'after optimization', False)
