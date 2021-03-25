@@ -1,4 +1,3 @@
-
 class DataOptimization:
     def __init__(self, reservations, time_range):
         self.reservations = reservations
@@ -19,8 +18,6 @@ class DataOptimization:
             interfering_reservations = self.get_reservation_from_tensor(self.reservations[i])
             interfering_reservations.sort(key=lambda element: element.x, reverse=False)  # sort the reservations after x position
             x_pos = self.find_first_valid_position(interfering_reservations, self.reservations[i])
-            
-            print(x_pos)
             self.reservations[i].x = x_pos
 
             # only add the reservations which really fit inside the available space
