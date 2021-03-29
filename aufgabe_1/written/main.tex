@@ -1,0 +1,25 @@
+\documentclass[
+    fontsize=12pt,
+    paper=a4,
+    abstract=false,
+    numbers=noenddot,
+    listof=totoc,
+    bibliography=totoc,
+    %twoside,
+    %open=right,
+    %cleardoublepage=plain,
+    parskip=half+
+]{scrreprt}
+
+\input{misc/preamble}
+
+\begin{document}
+
+    \input{chapters/chapter_0}
+    \input{chapters/chapter_1}
+    \input{chapters/chapter_2}
+    \input{chapters/chapter_3}
+    
+    \appendix
+    \pagestyle{scrplain}
+\end{document}
