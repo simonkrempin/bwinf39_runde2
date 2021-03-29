@@ -1,0 +1,20 @@
+\begin{titlepage}
+	\centering
+	\includegraphics[width=0.4\textwidth]{images/logo.png}\par\vspace{1cm}
+	{\scshape\LARGE Aufgabe 1  \par}
+	\vspace{1cm}
+	{\scshape\Large Team: jamoin, Team-ID: 00368\par}
+	\vspace{1.5cm}
+	{\huge\bfseries Spezifisches Bin-Packing Problem mit einem eigenen Algorithmus lösen\par}
+	\vspace{2cm}
+	{\Large\itshape Simon Krempin\par}
+	\vfill
+	{\large 19. April 2021\par}
+\end{titlepage}
+
+
+\clearpage
+%\pagestyle{scrheadings}
+\tableofcontents
+\pagenumbering{gobble}
+\clearpage
