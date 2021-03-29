@@ -1,0 +1,12 @@
+\pagenumbering{arabic}
+\setcounter{page}{3}
+
+\chapter{Einführung}
+% was ist Bin-Packing
+\textit{Bin-Packing} beschreibt ein Problem in der Informatik, bei welchem versucht wird Objekte in eine unbegrenzte Anzahl an \textit{Bins} zu stellen, wobei die Anzahl der \textit{Bins} möglichst gering gehalten wird. Solch ein Problem tritt nicht nur theoretisch auf. In der Logistik ist das ein tägliches Problem, um welches sich gekümmert werden muss. Das Problem kann an die Situation angepasst werden und fordert damit unterschiedliche Lösungsansätze. \par
+% die Verbindung von Bin-Packing mit dem in Aufgabe 1 geschilderten Problem
+Auch das in Aufgabe 1 beschriebene Problem lässt sich als \textit{Bin-Packing} Problem interpretieren. Es gibt einen \textit{Bin}, welcher sich aus dem verfügbaren Platz und der Zeitspanne ergibt. Die möglichst effizient ein zu sortierenden Objekte sind die Reservierungen der Bürger von Langdorf. Zu diesem Problem gibt es viele Optimierungsverfahren.\par
+% wieso dieses verfahren
+Bei Optimierungsprozessen müssen zwei Faktoren beachtet werden. Die Lösung der Aufgabe und die Laufzeit des Programms. Um die optimale Lösung eines Problems zu finden bietet sich ein \textit{Brute-Force} an. Mit einem solchen Verfahren wird zu 100\% eine optimale Lösung gefunden, da jede mögliche Kombination getestet wird. Bei Problemen mit vielen Möglichkeiten passiert es schnell, dass das Programm nicht nur mehrere Minuten läuft sondern sich über Tage bis Jahre hinausstreckt. Die komplexesten Problem der Informatik würden mit einem \textit{Brute-Force} Milliarden von Jahre dauern. Es muss also ein besseres Verfahren her, welches eine vertretbare Laufzeit hat. Diese Optimierungsverfahren unterscheiden sich von Aufgabe zu Aufgabe, haben aber immer eine Sache gemeinsam. Es ist möglich mit ihnen die perfekte Lösung zu finden, aber nicht wahrscheinlich. Mit einem Verfahren wird also eine annähernd perfekte Lösung, die sich normalerweise als gut genug herausstellt, in einem kurzen Zeitraum gefunden.\par
+% was den Leser erwartet
+In dieser Ausarbeitung wird ein Algorithmus thematisiert, welcher einen Kompromiss dieser beiden Punkte bietet. Meine Lösung wird in dem nachfolgenden Kapitel detailreich erörtert.
