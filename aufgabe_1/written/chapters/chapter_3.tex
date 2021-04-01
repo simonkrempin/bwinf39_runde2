@@ -12,8 +12,8 @@ Die von Listing \ref{lst:optimize} gezeigte Methode sortiert erst alle Reservier
 def try_fit(self):
     for i in range(len(self.reservations)):
         interfering_reservations = self.get_reservation_from_tensor(self.reservations[i])
-        interfering_reservations.sort(key=lambda element: element.x, reverse=False)  # sort the reservations after x position
-        x_pos = self.find_first_valid_position(interfering_reservations, self.reservations[i])
+        interfering_reservations.sort(key=lambda element: element.x, reverse=False)  # sort the reservations after x position |\label{tfm:4}|
+        x_pos = self.find_first_valid_position(interfering_reservations, self.reservations[i]) |\label{tfm:5}|
         self.reservations[i].x = x_pos
 
         # only add the reservations which really fit inside the available space
@@ -39,10 +39,28 @@ def get_reservation_from_tensor(self, r):
 
     return arr
 \end{lstlisting}
-Die Methode gibt einen Array von Reservierungen wieder, welche wegen ihrer Start- und Endzeit mit der neuen Reservierung \texttt{r} interferieren. Als erstes wird ermittelt von wo bis wo auf der X-Achse die Reservierungen gehen, damit sie überschneiden. Dafür werden die beiden Variablen \texttt{x\_range} und \texttt{x\_start} initialisiert und deklariert. \texttt{x\_range} ist dabei die Distanz von dem Startwert bis zur Endzeit des Flohmarkts. Währenddessen ist \texttt{x\_start} der Wert, bei dem der Index startet. Die Variable \texttt{y\_range} hängt von der Endzeit ab und somit inwiefern End- und Startzeit der beiden Reservierungen zusammenhängen. Abbildung \ref{fig:matrix_selected} zeigt wie eine solche Selektion der Reservierungen, welche zeitlich interferieren aussieht.
+Die Methode gibt einen Array von Reservierungen wieder, welche wegen ihrer Start- und Endzeit mit der neuen Reservierung \texttt{r} interferieren. Als erstes wird ermittelt von wo bis wo auf der X-Achse die Reservierungen gehen, damit sie überschneiden. Dafür werden die beiden Variablen \texttt{x\_range} und \texttt{x\_start} initialisiert und deklariert. \texttt{x\_range} ist dabei die Distanz von dem Startwert bis zur Endzeit des Flohmarkts. Währenddessen ist \texttt{x\_start} der Wert, bei dem der Index startet. Die Variable \texttt{y\_range} hängt von der Endzeit ab und somit inwiefern End- und Startzeit der beiden Reservierungen zusammenhängen. Mit Schleifen können die Felder via Indizes ausgewählt werden. Abbildung \ref{fig:matrix_selected} zeigt wie eine solche Selektion der Reservierungen, welche zeitlich interferieren aussieht.
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.75]{images/matrix_selected.png}
-    \caption{Matrix : Interferierende Reservierungen markiert}
+    \caption{Matrix : interferierende Reservierungen markiert}
     \label{fig:matrix_selected}
 \end{figure} \par
+\newpage
+In Zeile \ref{tfm:4} der \texttt{try\_fit}-Methode werden nun die zurückgegebenen Reservierungen nach der X Koordinate sortiert und in die Methode \texttt{find\_first\_valid\_position} übergeben. Diese erfüllt den zweiten Teil des Algorithmus. Mit einer \texttt{foreach}-Scheife wird jede Reservierung durchgelaufen. Es wird die letzte X Position festgehalten und die Distanz der X Position und dem Anfang der Reservierung gemessen. Wenn die Distanz größer oder gleich der Länge der neuen Reservierung, also der Reservierung, welche in das Feld einsortiert werden soll, wird wird die Position zurückgegeben. Andernfalls wir die X Position gleich der X Position des Endes der iterierten Reservierung gesetzt. Wenn keine Distanz gefunden werden kann, wird -1 zurückgegeben, damit die Reservierung aus der Wertung genommen wird.
+\begin{lstlisting}[language=python,caption={find\_first\_valid\_position-Methode},captionpos=b,label={lst:ffvp},escapechar=|,numbers=left]
+def get_reservation_from_tensor(self, r):
+    arr = []
+
+    x_range = self.duration - (r.begin - self.time_range[0])
+    x_start = r.begin - self.time_range[0] + 1
+    # this must always start at 8 because of this example [8-15] and [9-10] 1 interferes with 2
+    y_range = r.ending - self.time_range[0]
+
+    for i in range(x_range):
+        for j in range(y_range):
+            for reservation in self.tensor[i + x_start][j]:
+                arr.append(reservation)
+
+    return arr
+\end{lstlisting}
