@@ -6,7 +6,7 @@ import data_optimization as do
 time_range = 8, 18  # starting time and ending time of
 available_space = 1000
 
-file = open('example6.txt')
+file = open('example1.txt')
 reservations = []
 for i in range(int(file.readline())):
     reservations.append(rsv.Reservation(list(map(int, file.readline().split()))))
