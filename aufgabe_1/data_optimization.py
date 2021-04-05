@@ -47,9 +47,6 @@ class DataOptimization:
     def find_first_valid_position(self, interfering_reservations, fitting_reservation):
         x_pos = 0
         for reservation in interfering_reservations:
-            # this is a mistake like my life help :(
-            if reservation is interfering_reservations[-1] and reservation.x + reservation.length + fitting_reservation.length + x_pos <= 1000:
-                break
             if reservation.x - x_pos >= fitting_reservation.length:
                 break
             x_pos = reservation.x + reservation.length
