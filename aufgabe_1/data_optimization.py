@@ -47,6 +47,10 @@ class DataOptimization:
     def find_first_valid_position(self, interfering_reservations, fitting_reservation):
         x_pos = 0
         for reservation in interfering_reservations:
+            if reservation is interfering_reservations[-1]:
+                if reservation.x + reservation.length + fitting_reservation.length > 1000:
+                    if self.fit_rectangle_inside_last_space(fitting_reservation, reservation, x_pos + fitting_reservation.length) is True:
+                        break
             if reservation.x - x_pos >= fitting_reservation.length:
                 break
             x_pos = reservation.x + reservation.length
@@ -56,6 +60,7 @@ class DataOptimization:
         return x_pos
 
     def show_space_used(self):
+        print('---- optimization -----')
         available_space = 1000 * 10
         used_space = 0
         for reservation in self.reservations:
@@ -63,3 +68,24 @@ class DataOptimization:
                 continue
             used_space += reservation.size * reservation.length
         print(f"available space : {available_space}\nused space      : {used_space}\nfree space      : {available_space - used_space}")
+
+    # ----------------------------------
+    # further optimizations
+    # ----------------------------------
+
+    def fit_rectangle_inside_last_space(self, fitting_reservation, after_reservation, new_x=0):
+        interfering_reservations = self.get_reservation_from_tensor(after_reservation)
+        after_interfering_reservations = [x for x in interfering_reservations if x.x > new_x]
+
+        # if there is another reservation after can it be moved as well
+        if len(after_interfering_reservations) == 1:
+            if self.fit_rectangle_inside_last_space(after_reservation, after_interfering_reservations[0], new_x + after_reservation.length) \
+                    and new_x + after_reservation.length <= 1000:
+                after_reservation.x = new_x
+                return True
+
+        elif len(after_interfering_reservations) == 0:
+            if new_x + after_reservation.length <= 1000:
+                after_reservation.x = new_x
+                return True
+        return False
