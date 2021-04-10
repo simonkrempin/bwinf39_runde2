@@ -1,1 +1,33 @@
+\chapter{Erweiterung des Lösungsansatzes}
+% Einleitung
+Der Grundlegende Lösungsansatz lässt sich noch erweitern. Momentan werden die Reservierungen an das Ende einsortiert oder werden in eine Lücke einsortiert. In den Beispiel liegt eine Situation vor, in welcher eine Reservierung weder an das Ende noch in eine Lücke passt. Die Reservierung würde jedoch passen, wenn eine Reservierung weiter nach hinten verschoben wird. Die Methode \ref{lst:ffvp} wird um die folgende \texttt{if}-Anweisung in der \texttt{foreach}-Schleife erweitert.
 
+\begin{lstlisting}[language=python,caption={Erweiterung der ffvp-Methode},captionpos=b,label={lst:effvp},escapechar=|,numbers=left]
+if reservation is interfering_reservations[-1]:
+    if reservation.x + reservation.length + fitting_reservation.length > 1000:
+        if self.fit_rectangle_inside_last_space(fitting_reservation, reservation, x_pos + fitting_reservation.length):
+            break
+\end{lstlisting}
+
+Hiermit wird geguckt ob die letzte Reservierung nach hinten Verschoben werden kann, damit eine weitere Reservierung eingefügt werden kann. Das wird aber nur gemacht sofern die Reservierung nicht nach hinten passt.
+
+\begin{lstlisting}[language=python,caption={fit\_rectangle\_inside\_last\_space-Methode},captionpos=b,label={lst:frils},escapechar=|,numbers=left]
+def fit_rectangle_inside_last_space(self, fitting_reservation, after_reservation, new_x=0):
+    interfering_reservations = self.get_reservation_from_tensor(after_reservation)
+    after_interfering_reservations = [x for x in interfering_reservations if x.x > new_x]
+
+    # if there is another reservation after can it be moved as well
+    if len(after_interfering_reservations) == 1:
+        if self.fit_rectangle_inside_last_space(after_reservation, after_interfering_reservations[0], new_x + after_reservation.length) \
+                and new_x + after_reservation.length <= 1000:
+            after_reservation.x = new_x
+            return True
+
+    elif len(after_interfering_reservations) == 0:
+        if new_x + after_reservation.length <= 1000:
+            after_reservation.x = new_x
+            return True
+    return False
+\end{lstlisting}
+
+Die Methode \ref{lst:frils} überprüft ob die Reservierung, welche verschoben werden muss, auch wirklich verschoben werden darf. Dazu kommt noch das weitere Reservierung nach der Reservierung auch noch verschoben werden müssen. Durch eine Rekursion kann überprüft werden, inwiefern die auch verschoben werden können. Ist ein verschieben der Reservierungen nicht möglich, dann gibt die Methode ein \texttt{False} wieder und somit wird die Reservierung, welche eingefügt werden sollte, entfernt, indem ihre X Koordinate auf -1 gesetzt wird.
