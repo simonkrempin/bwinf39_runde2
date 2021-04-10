@@ -1,1 +1,102 @@
+\chapter{Anwendung}
+Nun wird das Programm an mehreren Beispielen angewandt. Die Beispiele 4, 5 und 6 bieten sich dafür sehr an. Da 6 generell den Algorithmus zeigt und 4 und 5 Sonderfälle behandeln. Als letztes werden noch die Limitierungen des Algorithmus durch ein eigenes Beispiel gezeigt. \par
+Als ersten werden die Reservierungen aus dem Textdokument ausgelesen und die Informationen in Objekte einer eigenen Klasse übergeben. Die Objekte werden in eine eigene Klasse übergeben. Die Klasse geht die vorher gezeigten Methoden durch und sortiert als erstes die Reservierungen nach der überstrichenen Zeit. Die Größte überstrichene Zeit kommt als erstes. Die sortierten Reservierungen werden der Reihe nach in den verfügbaren Platz einsortiert. Die erste Reservierung wird an die X Position 0 gesetzt. Komplizierter wird es sobald die zweite Reservierung eingefügt werden soll. Um den Algorithmus genauer zu verstehen, wird das Programm für mehrere Beispiele Schritt für Schritt durchgelaufen. Bei der Tabelle ist Links dabei der Schritt und rechts davon steht was getan wird.
 
+\section{Beispiel 6}
+Für Aufgabe 6 würden die Indizes der Reservierungen wie folgt aussehen: \texttt{[1, 2, 9, 8, 3, 4, 5, 6, 7]}. In diesem Beispiel wird die Reservierung mit dem Index 2 einsortiert.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        1 & Mit dem Tensor werden die Reservierungen gefunden, welche mit der neuen Reservierung \\& überschneiden würden.\\ \hline
+        1.1 & Die Länge des Bereichs auf der X-Achse der Elemente die interferieren ist 9. \\& Warum das 9 sein muss wurde schon ausführlich beschrieben. \\ \hline
+        1.2 & Danach wird der Startindex \texttt{x\_start} ermittelt, welcher \\& in diesem Beispiel 2 ist. \\ \hline
+        1.3 & Als letztes wird berechnet bis wo Reservierungen in der Y-Achse interferieren. \\&Aus der Rechnung resultiert für \texttt{y\_range} 7. \\ \hline
+        1.4 & Mit diesen Werten werden alle zeitlich interferierenden Reservierungen \\& ermittelt. Hier wird nur die Reservierung mit dem Index 1 zurückgegeben \\ \hline
+        2 & Die Reservierungen werden nach ihrer größer in der X-Koordinate \\& sortiert, hier ist das Resultat \texttt{[1]}\\ \hline
+    \end{tabular}
+\end{table}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        3 & Es wird nach einer Lücke gesucht, in welche die Reservierung passt und zurückgegeben. \\ \hline
+        3.1 & Die erste Lücke ist von Anfang des Feldes bis zur ersten Reservierung und \\& hat die Distanz \texttt{0}, was zu kurz für die zweite Reservierung ist. \\ \hline
+        3.2 & Es wird geprüft ob die Reservierung an das Ende der restlichen Reservierungen passt. \\& Bei dieser Reservierung ist das der Fall und es wird \texttt{249} zurückgegeben\\ \hline
+        4 & Der zurückgegebene Wert wird der Reservierung zugewiesen. \\ \hline
+        5 & Da der Wert größer als 0 ist, wird die Reservierung dem Tensor hinzugefügt. \\ \hline
+        5.1 & X-Index ergibt sich aus der Endzeit und ist \texttt{7}. \\& Der Y-Index ergibt sich aus der Startzeit und ist \texttt{1}. \\ \hline
+    \end{tabular}
+\end{table}
+
+\section{Beispiel 5}
+Die sortierten Reservierungen für Aufgabe 5 sehen wie folgt aus: \texttt{[1, 9, 5, 25, 10, 6, 7, 17, 19, 2, 3, 14, 18, 12, 20, 21, 22, 4, 8, 11, 13, 15, 16, 23, 24]}. In das Feld soll das Element mit dem Index 3 einsortiert werden.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        1 & Mit dem Tensor werden die Reservierungen gefunden, welche mit der neuen Reservierung \\& überschneiden würden.\\ \hline
+        1.1 & Die Länge des Bereichs auf der X-Achse der Elemente die interferieren ist 6.\\ \hline
+        1.2 & Danach wird der Startindex \texttt{x\_start} ermittelt, welcher \\& in diesem Beispiel 5 ist. \\ \hline
+        1.3 & Als letztes wird berechnet bis wo Reservierungen in der Y-Achse interferieren. \\&Aus der Rechnung resultiert für \texttt{y\_range} 7. \\ \hline
+        1.4 & Mit diesen Werten werden alle zeitlich interferierenden Reservierungen \\& ermittelt. In diesem Fall werden die Reservierungen \texttt{[1, 5, 9]} zurückgegeben \\ \hline
+        2 & \texttt{1, 9, 5} ist der Array nachdem er nach der Größe in der X-Koordinate sortiert wurde.\\ \hline
+        3 & Es wird nach einer Lücke gesucht, in welche die Reservierung passt und zurückgegeben. \\ \hline
+        3.1 & Die vorliegenden Lücken sind jeweils immer nur 0 groß. Die Reservierung \\& würde da nicht hineinpassen. \\ \hline
+        3.2 & Es wird getestet ob die letzte Reservierung verschoben werden kann, \\& damit die Reservierung doch passt. \\ \hline
+        3.2.1 & Erst werden alle Reservierungen gefunden, mit welchen die Reservierung \\& kollidieren würde, wenn sie nach hinten verschoben wird. Hier sind es keine.\\ \hline
+        3.2.2 & Die Reservierung darf nicht nach hinten verschoben werden,\\& denn sonst ist sie außerhalb des Bereichs. \\ \hline
+        3.3 & In diesem Beispiel passt die Reservierung auch nicht an das Ende \\&(sonst wäre die 3.2 Methode nie ausgeführt werden) und es wird -1 zurückgegeben.\\ \hline
+        4 & Der zurückgegebene Wert wird der Reservierung zugewiesen. \\ \hline
+    \end{tabular}
+\end{table}
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        5 & Da der Wert kleiner als 0 ist, wird die Reservierung dem Tensor nicht hinzugefügt. \\ \hline
+        5.1 & X-Index ergibt sich aus der Endzeit und ist \texttt{7}.  Der Y-Index ergibt sich aus der Startzeit und \\& ist \texttt{1}. \\ \hline
+    \end{tabular}
+\end{table}
+
+\section{Beispiel 4}
+\texttt{[1, 5, 6, 7, 2, 3, 4]} sind die sortierten Reservierungen für das vierte Beispiel. Es soll die Reservierung mit dem Index \texttt{[4]} 
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        1 & Mit dem Tensor werden die Reservierungen gefunden, welche mit der neuen Reservierung \\& überschneiden würden.\\ \hline
+        1.1 & Die Länge des Bereichs auf der X-Achse der Elemente die interferieren ist 10.\\ \hline
+        1.2 & Danach wird der Startindex \texttt{x\_start} ermittelt, welcher \\& in diesem Beispiel 1 ist. \\ \hline
+        1.3 & Als letztes wird berechnet bis wo Reservierungen in der Y-Achse interferieren. \\&Aus der Rechnung resultiert für \texttt{y\_range} 1. \\ \hline
+        1.4 & Mit diesen Werten werden alle zeitlich interferierenden Reservierungen \\& ermittelt. In diesem Fall werden die Reservierungen \texttt{[6, 1]} zurückgegeben \\ \hline
+        2 & \texttt{1, 6} ist der Array nachdem er nach der Größe in der X-Koordinate sortiert wurde.\\ \hline
+        3 & Es wird nach einer Lücke gesucht, in welche die Reservierung passt und zurückgegeben. \\ \hline
+        3.1 & Reservierung 4 passt nicht in die vorliegenden Lücken \\ \hline
+        3.2 & Es wird getestet ob die letzte Reservierung verschoben werden kann, \\& damit die Reservierung doch passt. \\ \hline
+        3.2.1 & Erst werden alle Reservierungen gefunden, mit welchen die Reservierung \\& kollidieren würde, wenn sie nach hinten verschoben wird. Hier sind es keine.\\ \hline
+        3.2.2 & Die Reservierung 6 darf nach hinten verschoben werden, da \\& sie trotzdem noch im Feld ist, auch wenn sich die \\& Reservierung dazwischen schiebt. \\ \hline
+        3.2.3 & Der Reservierung 6 wird die neue Position versehen und es \\& wird \texttt{True} zurückgegeben. \\ \hline
+        3.3 & Da \texttt{True} zurückgegeben wurde, kann die Reservierung 4 \\& die Position der letzten Lücke bekommen.\\ \hline
+        4 & Der zurückgegebene Wert wird der Reservierung zugewiesen. \\ \hline
+        5 & Da der Wert größer als 0 ist, wird die Reservierung dem Tensor hinzugefügt. \\ \hline
+        5.1 & X-Index ergibt sich aus der Endzeit und ist \texttt{1}.  Der Y-Index ergibt sich aus der Startzeit und \\& ist \texttt{1}. \\ \hline
+    \end{tabular}
+\end{table}
+
+\section{Eigenes Beispiel}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{images/miese_briese.png}
+\end{figure} \par
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.6]{images/miese_briese2.png}
+\end{figure} \par
+
+Mit diesen beiden Grafiken wird ein momentanes Problem deutlich. Da die Länge der Reservierungen in den jetzigen Algorithmus nicht einbezogen wird, kann es sein, dass je nach Reihenfolge der Reservierungen eine schlechtere Variante genommen wird. In der ersten Version wird nicht der ganze Platz gefüllt und in der zweiten wird der ganze Platz gefüllt. Die erste Variante ist das Resultat des Algorithmus, wenn die gelbe Reservierung nach der Sortierung an erster Stelle steht. Entgegenwirken könnte man das, indem die einzelnen Reservierungen gewichtet werden. Dann sortiert man nicht nach der überstrichen Zeit, sondern nach dem Gewicht einer Reservierung. Solch eine Rechnung konnte ich aus zeitlichen Gründen leider nicht mehr einbauen, da sie nach kurzer Überlegung kompliziert werden könnte, immerhin spielen viele Faktoren eine Rolle.
